@@ -1,0 +1,19 @@
+Enter number of courses: 5
+Enter number of course conflicts: 5
+Enter conflicting course pairs (0-based IDs):
+0 1
+0 2
+1 2
+1 3
+2 4
+
+Exam Timetable:
+Time Slot 1: Course 0, Course 3, Course 4
+Time Slot 2: Course 1
+Time Slot 3: Course 2
+
+Total exam slots required: 3
+
+--------------------------------
+Process exited after 33.44 seconds with return value 0
+Press any key to continue . . .
