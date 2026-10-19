@@ -1,0 +1,21 @@
+Enter number of items: 4
+Enter truck capacity (kg): 10
+Enter weight and utility value of each item:
+Item 1: 2 40
+Item 2: 3 50
+Item 3: 5 100
+Item 4: 4 60
+
+Maximum total utility: 190
+
+Selected items:
+Item 1 - Weight: 2 kg, Utility: 40
+Item 2 - Weight: 3 kg, Utility: 50
+Item 3 - Weight: 5 kg, Utility: 100
+
+Total weight: 10 kg
+Remaining capacity: 0 kg
+
+--------------------------------
+Process exited after 55.65 seconds with return value 0
+Press any key to continue . . .
