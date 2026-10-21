@@ -1,19 +1,42 @@
-Enter number of courses: 5
-Enter number of course conflicts: 5
-Enter conflicting course pairs (0-based IDs):
-0 1
-0 2
-1 2
-1 3
-2 4
+ASSIGNMENT 7: EXAM TIMETABLE - GREEDY GRAPH COLORING
+Enter number of courses:
+Enter course names in ID order (one word each):
+Enter number of conflicting course pairs:
+Enter each pair of course IDs sharing a student:
 
-Exam Timetable:
-Time Slot 1: Course 0, Course 3, Course 4
-Time Slot 2: Course 1
-Time Slot 3: Course 2
+CONFLICT TABLE
+Course | Conflicting courses
+DAA | DBMS, OS
+DBMS | DAA, OS, Maths
+OS | DAA, DBMS, CN
+CN | OS, AI
+AI | CN, Maths
+Maths | DBMS, AI
 
-Total exam slots required: 3
+EXAM COLOR ASSIGNMENT
+Course | Assigned color
+DAA | Red
+DBMS | Blue
+OS | Green
+CN | Red
+AI | Blue
+Maths | Red
 
---------------------------------
-Process exited after 33.44 seconds with return value 0
-Press any key to continue . . .
+EXAMS GROUPED BY COLOR (one color = one time slot)
+Red | DAA, CN, Maths
+Blue | DBMS, AI
+Green | OS
+
+CONFLICT CHECK
+Pair | Color 1 | Color 2 | Result
+DAA - DBMS | Red | Blue | PASS
+DAA - OS | Red | Green | PASS
+DBMS - OS | Blue | Green | PASS
+DBMS - Maths | Blue | Red | PASS
+OS - CN | Green | Red | PASS
+CN - AI | Red | Blue | PASS
+AI - Maths | Blue | Red | PASS
+Colors / time slots used: 3
+Schedule validation: CONFLICT-FREE
+Greedy does not always give the minimum colors.
+Time including grouped output: O(V^2+E) | Storage: O(V+E)
