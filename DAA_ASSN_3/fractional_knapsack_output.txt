@@ -1,17 +1,53 @@
-RELIEF SUPPLY SELECTION
--------------------------------------------------------------
-Item                Weight    Value     Ratio     Selected
--------------------------------------------------------------
-Emergency Radio     8         160       20.00     Full item
-First Aid Kit       12.00     210.00    17.50     Full item
-Sanitation Kit      10.00     140.00    14.00     Full item
-Canned Food         18.00     135.00    7.50      Full item
-Water Bottles       7.00      49.00     7.00      Fraction
--------------------------------------------------------------
-Boat Capacity: 55.00 kg
-Remaining Capacity: 0.00 kg
-Maximum Utility Value: 694.00
+EMERGENCY RELIEF SUPPLY DISTRIBUTION :
+Enter number of relief items: 4
+Enter boat capacity in kg: 50
 
---------------------------------
-Process exited after 0.2364 seconds with return value 0
-Press any key to continue . . .
+Enter details for Item 1:
+Item name: medicines
+Weight (kg): 15
+Utility value: 70
+Can this item be divided? (y/n): n
+
+Enter details for Item 2:
+Item name: food
+Weight (kg): 14
+Utility value: 60
+Can this item be divided? (y/n): y
+
+Enter details for Item 3:
+Item name: water
+Weight (kg): 12
+Utility value: 50
+Can this item be divided? (y/n): y
+
+Enter details for Item 4:
+Item name: 10
+Weight (kg): 40
+Utility value: y
+Can this item be divided? (y/n):
+
+ENTERED ITEM DETAILS :
+Item Name             Weight      Value       Ratio       Divisible
+-------------------------------------------------------------------------
+medicines             15          70          4.67        No
+food                  14.00       60.00       4.29        Yes
+water                 12.00       50.00       4.17        Yes
+10                    40.00       0.00        0.00        Yes
+
+Boat Capacity: 50.00 kg
+
+
+RELIEF SUPPLY SELECTION
+Item Name           Ratio     Total Wt.    Taken Wt.    Total Value  Gained       Fraction    Status
+------------------------------------------------------------------------------------------------------------------
+medicines           4.67      15.00        15.00        70.00        70.00        1.00        Full item
+food                4.29      14.00        14.00        60.00        60.00        1.00        Full item
+water               4.17      12.00        12.00        50.00        50.00        1.00        Full item
+10                  0.00      40.00        9.00         0.00         0.00         0.23        Partial item
+------------------------------------------------------------------------------------------------------------------
+
+ FINAL RESULT
+Boat Capacity       : 50.00 kg
+Weight Used         : 50.00 kg
+Remaining Capacity  : 0.00 kg
+Maximum Utility     : 180.00
