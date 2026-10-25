@@ -13,9 +13,14 @@ struct Item
     double value;
     double ratio;
     bool divisible;
+
+    double selectedWeight;
+    double selectedValue;
+    double fraction;
+    string status;
 };
 
-// Compare items based on value/weight ratio
+// Sort items according to utility per kilogram
 bool compare(const Item& a, const Item& b)
 {
     return a.ratio > b.ratio;
@@ -24,130 +29,203 @@ bool compare(const Item& a, const Item& b)
 int main()
 {
     vector<Item> items;
-
     Item item;
 
-    item.name = "First Aid Kit";
-    item.weight = 12;
-    item.value = 210;
-    item.divisible = false;
-    items.push_back(item);
+    int n;
+    double W;
+    char choice;
 
-    item.name = "Canned Food";
-    item.weight = 18;
-    item.value = 135;
-    item.divisible = true;
-    items.push_back(item);
+    cout << " EMERGENCY RELIEF SUPPLY DISTRIBUTION :\n";
 
-    item.name = "Water Bottles";
-    item.weight = 25;
-    item.value = 175;
-    item.divisible = true;
-    items.push_back(item);
+    cout << "Enter number of relief items: ";
+    cin >> n;
 
-    item.name = "Emergency Radio";
-    item.weight = 8;
-    item.value = 160;
-    item.divisible = false;
-    items.push_back(item);
-
-    item.name = "Tents";
-    item.weight = 30;
-    item.value = 120;
-    item.divisible = true;
-    items.push_back(item);
-
-    item.name = "Sanitation Kit";
-    item.weight = 10;
-    item.value = 140;
-    item.divisible = false;
-    items.push_back(item);
-
-    double W = 55;
-
-    // Calculate utility per kilogram
-    for (int i = 0; i < (int)items.size(); i++)
+    if (n <= 0)
     {
-        items[i].ratio = items[i].value / items[i].weight;
+        cout << "Number of items must be positive.\n";
+        return 0;
     }
 
-    // Sort according to utility/weight ratio
+    cout << "Enter boat capacity in kg: ";
+    cin >> W;
+
+    if (W <= 0)
+    {
+        cout << "Boat capacity must be positive.\n";
+        return 0;
+    }
+
+    // Take item details from the user
+    for (int i = 0; i < n; i++)
+    {
+        cout << "\nEnter details for Item " << i + 1 << ":\n";
+
+        cout << "Item name: ";
+        cin >> ws;
+        getline(cin, item.name);
+
+        cout << "Weight (kg): ";
+        cin >> item.weight;
+
+        if (item.weight <= 0)
+        {
+            cout << "Weight must be positive. Try again.\n";
+            i--;
+            continue;
+        }
+
+        cout << "Utility value: ";
+        cin >> item.value;
+
+        if (item.value < 0)
+        {
+            cout << "Utility value cannot be negative. Try again.\n";
+            i--;
+            continue;
+        }
+
+        cout << "Can this item be divided? (y/n): ";
+        cin >> choice;
+
+        if (choice == 'y' || choice == 'Y')
+            item.divisible = true;
+        else
+            item.divisible = false;
+
+        item.ratio = item.value / item.weight;
+
+        item.selectedWeight = 0;
+        item.selectedValue = 0;
+        item.fraction = 0;
+        item.status = "Not processed";
+
+        items.push_back(item);
+    }
+
+    // Display the entered item details
+    cout << "\n\nENTERED ITEM DETAILS :\n";
+
+    cout << left
+         << setw(22) << "Item Name"
+         << setw(12) << "Weight"
+         << setw(12) << "Value"
+         << setw(12) << "Ratio"
+         << setw(15) << "Divisible"
+         << endl;
+
+    cout << string(73, '-') << endl;
+
+    for (int i = 0; i < (int)items.size(); i++)
+    {
+        cout << left
+             << setw(22) << items[i].name
+             << setw(12) << items[i].weight
+             << setw(12) << items[i].value
+             << setw(12) << fixed << setprecision(2)
+             << items[i].ratio
+             << setw(15)
+             << (items[i].divisible ? "Yes" : "No")
+             << endl;
+    }
+
+    cout << "\nBoat Capacity: " << W << " kg\n";
+
+    // Sort items by descending utility-to-weight ratio
     sort(items.begin(), items.end(), compare);
 
     double remainingWeight = W;
     double totalValue = 0;
 
-    cout << "RELIEF SUPPLY SELECTION\n";
-    cout << "-------------------------------------------------------------\n";
-
-    cout << left
-         << setw(20) << "Item"
-         << setw(10) << "Weight"
-         << setw(10) << "Value"
-         << setw(10) << "Ratio"
-         << setw(20) << "Selected"
-         << endl;
-
-    cout << "-------------------------------------------------------------\n";
-
+    // Apply the greedy selection algorithm
     for (int i = 0; i < (int)items.size(); i++)
     {
         if (remainingWeight <= 0)
-            break;
-
-        // Take complete item
-        if (items[i].weight <= remainingWeight)
         {
-            remainingWeight -= items[i].weight;
-            totalValue += items[i].value;
-
-            cout << left
-                 << setw(20) << items[i].name
-                 << setw(10) << items[i].weight
-                 << setw(10) << items[i].value
-                 << setw(10) << fixed << setprecision(2)
-                 << items[i].ratio
-                 << setw(20) << "Full item"
-                 << endl;
+            items[i].status = "No capacity left";
+            continue;
         }
 
-        // Take fraction if item is divisible
+        // Select the entire item if it fits
+        if (items[i].weight <= remainingWeight)
+        {
+            items[i].selectedWeight = items[i].weight;
+            items[i].selectedValue = items[i].value;
+            items[i].fraction = 1.0;
+            items[i].status = "Full item";
+
+            remainingWeight -= items[i].weight;
+            totalValue += items[i].value;
+        }
+
+        // Select a fraction if the item can be divided
         else if (items[i].divisible)
         {
-            double fraction = remainingWeight / items[i].weight;
+            items[i].selectedWeight = remainingWeight;
 
-            double selectedValue = fraction * items[i].value;
+            items[i].fraction =
+                remainingWeight / items[i].weight;
 
-            totalValue += selectedValue;
+            items[i].selectedValue =
+                items[i].fraction * items[i].value;
 
-            cout << left
-                 << setw(20) << items[i].name
-                 << setw(10) << remainingWeight
-                 << setw(10) << selectedValue
-                 << setw(10) << fixed << setprecision(2)
-                 << items[i].ratio
-                 << setw(20) << "Fraction"
-                 << endl;
+            items[i].status = "Partial item";
 
+            totalValue += items[i].selectedValue;
             remainingWeight = 0;
         }
 
-        // Cannot divide the item
+        // Skip an indivisible item that does not fit
         else
         {
-            continue;
+            items[i].status = "Skipped";
         }
     }
 
-    cout << "-------------------------------------------------------------\n";
+    // Display the final selection table
+    cout << "\n\nRELIEF SUPPLY SELECTION \n";
 
-    cout << "Boat Capacity: "
-         << W << " kg" << endl;
+    cout << left
+         << setw(20) << "Item Name"
+         << setw(10) << "Ratio"
+         << setw(13) << "Total Wt."
+         << setw(13) << "Taken Wt."
+         << setw(13) << "Total Value"
+         << setw(13) << "Gained"
+         << setw(12) << "Fraction"
+         << setw(20) << "Status"
+         << endl;
 
-    cout << "Remaining Capacity: "
-         << remainingWeight << " kg" << endl;
+    cout << string(114, '-') << endl;
 
-    cout << "Maximum Utility Value: "
+    for (int i = 0; i < (int)items.size(); i++)
+    {
+        cout << left
+             << setw(20) << items[i].name
+             << setw(10) << fixed << setprecision(2)
+             << items[i].ratio
+             << setw(13) << items[i].weight
+             << setw(13) << items[i].selectedWeight
+             << setw(13) << items[i].value
+             << setw(13) << items[i].selectedValue
+             << setw(12) << items[i].fraction
+             << setw(20) << items[i].status
+             << endl;
+    }
+
+    cout << string(114, '-') << endl;
+
+    cout << "\n FINAL RESULT \n";
+
+    cout << "Boat Capacity       : "
+         << W << " kg\n";
+
+    cout << "Weight Used         : "
+         << W - remainingWeight << " kg\n";
+
+    cout << "Remaining Capacity  : "
+         << remainingWeight << " kg\n";
+
+    cout << "Maximum Utility     : "
          << fixed << setprecision(2)
          << totalValue << endl;
 
