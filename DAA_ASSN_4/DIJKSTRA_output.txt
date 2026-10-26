@@ -17,7 +17,37 @@ Enter number of hospitals: 3
 Enter hospital nodes: 3 4 5
 
 Nearest hospital is at node 3 with travel time 8 minutes.
+Optimal Route: 0 -> 2 -> 1 -> 3
 
---------------------------------
-Process exited after 46.41 seconds with return value 0
-Press any key to continue . . .
+1. Update traffic
+2. Recalculate route
+3. Exit
+Enter choice: 2
+
+Nearest hospital is at node 3 with travel time 8 minutes.
+Optimal Route: 0 -> 2 -> 1 -> 3
+
+1. Update traffic
+2. Recalculate route
+3. Exit
+Enter choice: 1
+Enter road endpoints (u v): 1 2
+Enter new travel time: 3
+Traffic updated successfully.
+
+Nearest hospital is at node 3 with travel time 9 minutes.
+Optimal Route: 0 -> 1 -> 3
+
+1. Update traffic
+2. Recalculate route
+3. Exit
+Enter choice: 2
+
+Nearest hospital is at node 3 with travel time 9 minutes.
+Optimal Route: 0 -> 1 -> 3
+
+1. Update traffic
+2. Recalculate route
+3. Exit
+Enter choice: 3
+Exiting program.
