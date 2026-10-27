@@ -1,42 +1,62 @@
 ASSIGNMENT 7: EXAM TIMETABLE - GREEDY GRAPH COLORING
-Enter number of courses:
+Enter number of courses: 6
 Enter course names in ID order (one word each):
-Enter number of conflicting course pairs:
+Course 1: DAA
+Course 2: DBMS
+Course 3: CNT
+Course 4: COA
+Course 5: AIML
+Course 6: MDM
+Enter number of conflicting course pairs: 7
 Enter each pair of course IDs sharing a student:
+(IDs range from 1 to 6)
+Pair 1: 1 2
+Pair 2: 1 3
+Pair 3: 2 3
+Pair 4: 2 6
+Pair 5: 3 4
+Pair 6: 4 5
+Pair 7: 5 6
 
 CONFLICT TABLE
 Course | Conflicting courses
-DAA | DBMS, OS
-DBMS | DAA, OS, Maths
-OS | DAA, DBMS, CN
-CN | OS, AI
-AI | CN, Maths
-Maths | DBMS, AI
+DAA | DBMS, CNT
+DBMS | DAA, CNT, MDM
+CNT | DAA, DBMS, COA
+COA | CNT, AIML
+AIML | COA, MDM
+MDM | DBMS, AIML
 
 EXAM COLOR ASSIGNMENT
 Course | Assigned color
 DAA | Red
 DBMS | Blue
-OS | Green
-CN | Red
-AI | Blue
-Maths | Red
+CNT | Green
+COA | Red
+AIML | Blue
+MDM | Red
 
 EXAMS GROUPED BY COLOR (one color = one time slot)
-Red | DAA, CN, Maths
-Blue | DBMS, AI
-Green | OS
+Red | DAA, COA, MDM
+Blue | DBMS, AIML
+Green | CNT
 
 CONFLICT CHECK
 Pair | Color 1 | Color 2 | Result
 DAA - DBMS | Red | Blue | PASS
-DAA - OS | Red | Green | PASS
-DBMS - OS | Blue | Green | PASS
-DBMS - Maths | Blue | Red | PASS
-OS - CN | Green | Red | PASS
-CN - AI | Red | Blue | PASS
-AI - Maths | Blue | Red | PASS
+DAA - CNT | Red | Green | PASS
+DBMS - CNT | Blue | Green | PASS
+DBMS - MDM | Blue | Red | PASS
+CNT - COA | Green | Red | PASS
+COA - AIML | Red | Blue | PASS
+AIML - MDM | Blue | Red | PASS
+
+SCHEDULING SUMMARY
+Total courses scheduled: 6
+Total conflicts checked: 7
+Conflict violations: 0
 Colors / time slots used: 3
 Schedule validation: CONFLICT-FREE
+
 Greedy does not always give the minimum colors.
-Time including grouped output: O(V^2+E) | Storage: O(V+E)
+Time: O(V^2 + E) | Storage: O(V + E)
