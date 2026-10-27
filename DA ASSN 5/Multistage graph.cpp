@@ -1,4 +1,3 @@
-
 #include <iostream>
 #include <vector>
 #include <iomanip>
@@ -9,12 +8,118 @@ using namespace std;
 struct Edge
 {
     int u, v;
-    double base_cost, cur_cost;
+    double baseCost, curCost;
+    bool active;
 };
+
+void calculateDP(int stages, vector<int>& stageCount,
+                 vector<int>& stageOf, vector<Edge>& edges,
+                 vector< vector<int> >& adj,
+                 vector<double>& bestCost,
+                 vector<int>& nextNode)
+{
+    int N = stageOf.size();
+    double INF = numeric_limits<double>::max();
+
+    bestCost.assign(N, INF);
+    nextNode.assign(N, -1);
+
+    int lastStart = N - stageCount[stages - 1];
+
+    for (int i = lastStart; i < N; i++)
+        bestCost[i] = 0;
+
+    for (int s = stages - 2; s >= 0; s--)
+    {
+        int start = 0;
+
+        for (int i = 0; i < s; i++)
+            start += stageCount[i];
+
+        int end = start + stageCount[s];
+
+        for (int u = start; u < end; u++)
+        {
+            for (int j = 0; j < (int)adj[u].size(); j++)
+            {
+                int index = adj[u][j];
+                int v = edges[index].v;
+
+                if (edges[index].active && bestCost[v] != INF)
+                {
+                    double candidate =
+                        edges[index].curCost + bestCost[v];
+
+                    if (candidate < bestCost[u])
+                    {
+                        bestCost[u] = candidate;
+                        nextNode[u] = v;
+                    }
+                }
+            }
+        }
+    }
+}
+
+void showRoute(int source, vector<int>& nextNode,
+               vector<double>& bestCost)
+{
+    if (bestCost[source] == numeric_limits<double>::max())
+    {
+        cout << "No complete route available.\n";
+        return;
+    }
+
+    cout << "Optimal Route: ";
+
+    int current = source;
+    cout << current;
+
+    while (nextNode[current] != -1)
+    {
+        current = nextNode[current];
+        cout << " -> " << current;
+    }
+
+    cout << "\nTotal route cost: "
+         << bestCost[source] << "\n";
+}
+
+void processRequests(int count, int stages,
+                     vector<int>& stageCount,
+                     vector<int>& stageOf,
+                     vector<Edge>& edges,
+                     vector< vector<int> >& adj)
+{
+    vector<double> bestCost;
+    vector<int> nextNode;
+
+    calculateDP(stages, stageCount, stageOf, edges,
+                adj, bestCost, nextNode);
+
+    for (int i = 0; i < count; i++)
+    {
+        int source;
+
+        cout << "\nEnter source node for delivery request "
+             << i + 1 << ": ";
+        cin >> source;
+
+        if (source < 0 || source >= (int)stageOf.size() ||
+            stageOf[source] != 0)
+        {
+            cout << "Invalid source. Source must be in Stage 0.\n";
+            continue;
+        }
+
+        cout << "Delivery request " << i + 1 << ":\n";
+        showRoute(source, nextNode, bestCost);
+    }
+}
 
 int main()
 {
-    int stages, i, j;
+    int stages;
 
     cout << "Enter number of stages: ";
     cin >> stages;
@@ -32,7 +137,7 @@ int main()
     cout << "Enter number of nodes in each stage ("
          << stages << " values): ";
 
-    for (i = 0; i < stages; i++)
+    for (int i = 0; i < stages; i++)
     {
         cin >> stageCount[i];
 
@@ -42,7 +147,7 @@ int main()
             return 0;
         }
 
-        for (j = 0; j < stageCount[i]; j++)
+        for (int j = 0; j < stageCount[i]; j++)
         {
             stageOf.push_back(i);
             N++;
@@ -50,6 +155,7 @@ int main()
     }
 
     int E;
+
     cout << "Enter number of edges: ";
     cin >> E;
 
@@ -61,252 +167,148 @@ int main()
 
     vector<Edge> edges;
     vector< vector<int> > adj(N);
-    vector< vector<int> > rev_adj(N);
 
-    cout << "Enter each edge as: u v cost\n";
+    cout << "Enter each directed edge as: u v cost\n";
 
-    for (i = 0; i < E; i++)
+    for (int i = 0; i < E; i++)
     {
         Edge e;
 
-        cin >> e.u >> e.v >> e.base_cost;
+        cin >> e.u >> e.v >> e.baseCost;
 
         if (e.u < 0 || e.u >= N ||
-            e.v < 0 || e.v >= N)
+            e.v < 0 || e.v >= N ||
+            stageOf[e.u] >= stageOf[e.v] ||
+            e.baseCost < 0)
         {
-            cout << "Invalid node ID.\n";
+            cout << "Invalid edge. Edges must go to a later stage "
+                 << "with non-negative cost.\n";
             return 0;
         }
 
-        if (stageOf[e.u] >= stageOf[e.v])
-        {
-            cout << "Invalid edge: edges must go to a later stage.\n";
-            return 0;
-        }
-
-        if (e.base_cost < 0)
-        {
-            cout << "Edge costs must be non-negative.\n";
-            return 0;
-        }
-
-        e.cur_cost = e.base_cost;
+        e.curCost = e.baseCost;
+        e.active = true;
 
         edges.push_back(e);
-
-        int index = (int)edges.size() - 1;
-
-        adj[e.u].push_back(index);
-        rev_adj[e.v].push_back(index);
+        adj[e.u].push_back((int)edges.size() - 1);
     }
 
-    const double INF = numeric_limits<double>::max();
+    cout << fixed << setprecision(2);
 
-    vector<double> best_cost(N);
-    vector<int> next_node(N);
+    int requests;
 
-    // Calculate shortest costs backward through the stages.
-    // Every node in the final stage has cost zero to itself.
+    cout << "\nEnter number of delivery requests: ";
+    cin >> requests;
 
-    for (i = 0; i < N; i++)
+    if (requests < 0)
     {
-        best_cost[i] = INF;
-        next_node[i] = -1;
+        cout << "Invalid number of requests.\n";
+        return 0;
     }
 
-    int lastStart = N - stageCount[stages - 1];
+    processRequests(requests, stages, stageCount, stageOf,
+                    edges, adj);
 
-    for (i = lastStart; i < N; i++)
+    int choice;
+
+    do
     {
-        best_cost[i] = 0;
-    }
+        cout << "\n1. Update traffic cost\n";
+        cout << "2. Close a road\n";
+        cout << "3. Reopen a road\n";
+        cout << "4. Process delivery requests again\n";
+        cout << "5. Exit\n";
+        cout << "Enter choice: ";
+        cin >> choice;
 
-    // Dynamic programming from the last stage to Stage 0.
-
-    for (int s = stages - 2; s >= 0; s--)
-    {
-        int start = 0;
-
-        for (i = 0; i < s; i++)
+        if (choice == 1)
         {
-            start += stageCount[i];
-        }
+            int u, v;
+            double multiplier;
+            bool found = false;
 
-        int end = start + stageCount[s];
+            cout << "Enter directed edge (u v): ";
+            cin >> u >> v;
 
-        for (int u = start; u < end; u++)
-        {
-            for (j = 0; j < (int)adj[u].size(); j++)
+            cout << "Enter traffic multiplier: ";
+            cin >> multiplier;
+
+            if (u < 0 || u >= N || v < 0 || v >= N ||
+                multiplier < 0)
             {
-                int index = adj[u][j];
-                int v = edges[index].v;
+                cout << "Invalid input.\n";
+                continue;
+            }
 
-                if (best_cost[v] != INF)
+            for (int i = 0; i < (int)edges.size(); i++)
+            {
+                if (edges[i].u == u && edges[i].v == v)
                 {
-                    double candidate =
-                        edges[index].cur_cost + best_cost[v];
-
-                    if (candidate < best_cost[u])
-                    {
-                        best_cost[u] = candidate;
-                        next_node[u] = v;
-                    }
+                    edges[i].curCost =
+                        edges[i].baseCost * multiplier;
+                    found = true;
                 }
             }
-        }
-    }
 
-    cout << fixed << setprecision(6);
-
-    cout << "\nBest costs from Stage-0 nodes:\n";
-
-    for (i = 0; i < stageCount[0]; i++)
-    {
-        cout << "Node " << i << ": cost = ";
-
-        if (best_cost[i] == INF)
-            cout << "Unreachable\n";
-        else
-            cout << best_cost[i] << "\n";
-    }
-
-    int source;
-
-    cout << "\nEnter a source node id (in stage 0) to print path, "
-         << "or -1 to skip: ";
-    cin >> source;
-
-    if (source != -1)
-    {
-        if (source < 0 || source >= N ||
-            stageOf[source] != 0)
-        {
-            cout << "Invalid source node.\n";
-        }
-        else if (best_cost[source] == INF)
-        {
-            cout << "Destination is unreachable from "
-                 << source << ".\n";
-        }
-        else
-        {
-            cout << "Path from " << source << " : ";
-
-            int current = source;
-            cout << current;
-
-            while (next_node[current] != -1)
-            {
-                current = next_node[current];
-                cout << " -> " << current;
-            }
-
-            cout << "\nTotal route cost (sum edges): "
-                 << best_cost[source] << "\n";
-        }
-    }
-
-    int updates;
-
-    cout << "\nEnter number of live updates to edge costs "
-         << "(0 to finish): ";
-    cin >> updates;
-
-    for (int update = 0; update < updates; update++)
-    {
-        int u, v;
-        double multiplier;
-
-        cout << "Enter edge update (u v multiplier): ";
-        cin >> u >> v >> multiplier;
-
-        if (u < 0 || u >= N ||
-            v < 0 || v >= N || multiplier < 0)
-        {
-            cout << "Invalid update. Skipping.\n";
-            continue;
-        }
-
-        int found = 0;
-
-        for (i = 0; i < (int)edges.size(); i++)
-        {
-            if (edges[i].u == u && edges[i].v == v)
-            {
-                edges[i].cur_cost =
-                    edges[i].base_cost * multiplier;
-
-                found = 1;
-            }
-        }
-
-        if (!found)
-        {
-            cout << "Edge not found. Update skipped.\n";
-        }
-    }
-
-    if (updates > 0)
-    {
-        // Recalculate all best costs after the updates.
-
-        for (i = 0; i < N; i++)
-        {
-            best_cost[i] = INF;
-            next_node[i] = -1;
-        }
-
-        for (i = lastStart; i < N; i++)
-        {
-            best_cost[i] = 0;
-        }
-
-        for (int s = stages - 2; s >= 0; s--)
-        {
-            int start = 0;
-
-            for (i = 0; i < s; i++)
-            {
-                start += stageCount[i];
-            }
-
-            int end = start + stageCount[s];
-
-            for (int u = start; u < end; u++)
-            {
-                for (j = 0; j < (int)adj[u].size(); j++)
-                {
-                    int index = adj[u][j];
-                    int v = edges[index].v;
-
-                    if (best_cost[v] != INF)
-                    {
-                        double candidate =
-                            edges[index].cur_cost + best_cost[v];
-
-                        if (candidate < best_cost[u])
-                        {
-                            best_cost[u] = candidate;
-                            next_node[u] = v;
-                        }
-                    }
-                }
-            }
-        }
-
-        cout << "\nAfter updates, best costs from Stage-0 nodes:\n";
-
-        for (i = 0; i < stageCount[0]; i++)
-        {
-            cout << "Node " << i << ": cost = ";
-
-            if (best_cost[i] == INF)
-                cout << "Unreachable\n";
+            if (found)
+                cout << "Traffic cost updated.\n";
             else
-                cout << best_cost[i] << "\n";
+                cout << "Edge not found.\n";
         }
-    }
+        else if (choice == 2 || choice == 3)
+        {
+            int u, v;
+            bool found = false;
+
+            cout << "Enter directed edge (u v): ";
+            cin >> u >> v;
+
+            if (u < 0 || u >= N || v < 0 || v >= N)
+            {
+                cout << "Invalid node ID.\n";
+                continue;
+            }
+
+            for (int i = 0; i < (int)edges.size(); i++)
+            {
+                if (edges[i].u == u && edges[i].v == v)
+                {
+                    edges[i].active = (choice == 3);
+                    found = true;
+                }
+            }
+
+            if (found)
+                cout << "Road status updated.\n";
+            else
+                cout << "Edge not found.\n";
+        }
+        else if (choice == 4)
+        {
+            cout << "\nRecalculating routes with current costs...\n";
+
+            cout << "Enter number of delivery requests: ";
+            cin >> requests;
+
+            if (requests < 0)
+            {
+                cout << "Invalid number of requests.\n";
+                continue;
+            }
+
+            processRequests(requests, stages, stageCount,
+                            stageOf, edges, adj);
+        }
+        else if (choice == 5)
+        {
+            cout << "Exiting program.\n";
+        }
+        else
+        {
+            cout << "Invalid choice.\n";
+        }
+
+    } while (choice != 5);
 
     return 0;
 }
-
