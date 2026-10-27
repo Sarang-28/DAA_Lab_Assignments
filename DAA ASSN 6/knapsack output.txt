@@ -1,32 +1,61 @@
-ASSIGNMENT 6: DISASTER RELIEF TRUCK - 0/1 KNAPSACK
-Enter number of items and truck capacity:
-Enter each item: name weight utility
+DISASTER RELIEF RESOURCE ALLOCATION:
+Enter number of relief items: 4
 
-SUPPLY AND SELECTION TABLE
-Name | Weight kg | Utility | Divisibility | Take (0/1) | Decision
-Blankets | 5 | 30 | Whole package only | 0 | Left behind
-Food | 6 | 48 | Whole package only | 1 | Loaded
-BabyFood | 3 | 35 | Whole package only | 1 | Loaded
-Medicine | 4 | 60 | Whole package only | 1 | Loaded
-Water | 7 | 28 | Whole package only | 0 | Left behind
+Enter item details: Name Weight Utility Priority (0/1)
+Item 1: food 13 60 1
+Item 2: water 10 50 1
+Item 3: medicines 12 70 0
+Item 4: clothes 9 50 0
 
-DP TABLE: maximum utility for each capacity
-Item/Capacity | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15
-No items | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
-Blankets | 0 | 0 | 0 | 0 | 0 | 30 | 30 | 30 | 30 | 30 | 30 | 30 | 30 | 30 | 30 | 30
-Food | 0 | 0 | 0 | 0 | 0 | 30 | 48 | 48 | 48 | 48 | 48 | 78 | 78 | 78 | 78 | 78
-BabyFood | 0 | 0 | 0 | 35 | 35 | 35 | 48 | 48 | 65 | 83 | 83 | 83 | 83 | 83 | 113 | 113
-Medicine | 0 | 0 | 0 | 35 | 60 | 60 | 60 | 95 | 95 | 95 | 108 | 108 | 125 | 143 | 143 | 143
-Water | 0 | 0 | 0 | 35 | 60 | 60 | 60 | 95 | 95 | 95 | 108 | 108 | 125 | 143 | 143 | 143
+RELIEF ITEM INVENTORY:
+Item        Weight (kg)    Utility     Priority    Bonus     Final Utility
+food        13             60          High        10        70
+water       10             50          High        10        60
+medicines   12             70          Normal      0         70
+clothes     9              50          Normal      0         50
+------------------------------------------------------------------------
 
-ITEMS IN THE TRUCK
-Name | Weight kg | Utility
-Food | 6 | 48
-BabyFood | 3 | 35
-Medicine | 4 | 60
-Truck capacity: 15 kg
-Total weight: 13 kg
-Unused capacity: 2 kg
-Maximum utility: 143
-Selected packages: 3 of 5
-Time and space: O(N*(W+1)) | Each package used at most once.
+Enter number of trucks: 2
+
+Enter capacity of truck 1 (kg): 30
+
+ TRUCK 1 - SELECTED ITEMS
+Item        Weight (kg)    Utility     Priority    Bonus     Final Utility
+food        13             60          High        10        70
+water       10             50          High        10        60
+
+TRUCK 1 SUMMARY :
+Truck Capacity       : 30 kg
+Total Weight Loaded  : 23 kg
+Remaining Capacity   : 7 kg
+Items Selected       : 2
+Maximum Utility      : 130
+
+Enter capacity of truck 2 (kg): 40
+
+ TRUCK 2 - SELECTED ITEMS
+Item        Weight (kg)    Utility     Priority    Bonus     Final Utility
+medicines   12             70          Normal      0         70
+clothes     9              50          Normal      0         50
+
+TRUCK 2 SUMMARY :
+Truck Capacity       : 40 kg
+Total Weight Loaded  : 21 kg
+Remaining Capacity   : 19 kg
+Items Selected       : 2
+Maximum Utility      : 120
+
+ FINAL ALLOCATION SUMMARY:
+Total Trucks             : 2
+Total Weight Loaded      : 44 kg
+Total Utility            : 250
+
+ REMAINING ITEMS
+Item        Weight (kg)    Utility        Status
+food        13             60             Allocated
+water       10             50             Allocated
+medicines   12             70             Allocated
+clothes     9              50             Allocated
+
+Time Complexity per truck: O(N*W)
+Space Complexity per truck: O(N*W)
